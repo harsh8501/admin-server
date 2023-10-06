@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import session from "express-session";
 import passport from "passport";
-import flash from 'connect-flash';
 
 import admin from "./routes/admin.js";
 import dashboard from "./routes/dashboard.js";
