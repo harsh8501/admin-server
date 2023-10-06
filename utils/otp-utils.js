@@ -7,7 +7,7 @@ export const sendOtpEmail = async (to, subject, otp) => {
     secure: true,
     auth: {
       user: "harshkushwah85@gmail.com",
-      pass: "ydth xiep qoyu pmdg",
+      pass: "xxxx xxxx xxxx xxxx",
     },
   });
 
