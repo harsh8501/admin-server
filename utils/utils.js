@@ -37,3 +37,77 @@ export const sendOtpVerificationEmail = async (email, subject) => {
     console.log(error.message);
   }
 };
+
+
+//Check OTP
+const checkOtp = async (hashedOtp, originalOtp) => {
+  const hashedOtp_2 = hashOtp(originalOtp);
+  if (hashedOtp === hashedOtp_2) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+//Verify OTP
+export const verifyOtp = async (email, otp) => {
+  try {
+    // Check OTP
+    const userOtpRecord = await new Promise((resolve, reject) => {
+      conn.query("SELECT * FROM otp WHERE email=?", [email], (err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(result);
+      });
+    });
+
+    if (!userOtpRecord || userOtpRecord.length === 0) {
+      return {
+        verified: false,
+        message: `Account record doesn't exist or has been verified already. Please sign up.`,
+      };
+    }
+
+    const hashOtp = userOtpRecord[0].opt;
+    const otpExpiredDate = userOtpRecord[0].expiresAt;
+
+    if (parseInt(otpExpiredDate) < Date.now()) {
+      // OTP expired
+      conn.query("DELETE FROM otp WHERE email=?", [email], (err, result) => {
+        if (err) {
+          console.log(err.message);
+        }
+      });
+      return {
+        verified: false,
+        message: `OTP has expired. Please try again.`,
+      };
+    } else {
+      // Check for valid OTP
+      const validOtp = await checkOtp(hashOtp, otp);
+      if (!validOtp) {
+        return {
+          verified: false,
+          message: `OTP is not valid. Please try again.`,
+        };
+      } else {
+        conn.query("DELETE FROM otp WHERE email=?", [email], (err, result) => {
+          if (err) {
+            console.log(err.message);
+          }
+        });
+        return {
+          verified: true,
+          message: `User Account Verified Successfully.`,
+        };
+      }
+    }
+  } catch (error) {
+    return {
+      verified: false,
+      message: error.message,
+    };
+  }
+};
