@@ -58,7 +58,8 @@ passport.use(
             //return done(null, admin);
 
             // If authentication is successful, continue with OTP verification
-            return verifyOTP(admin.id, done, admin);
+            //return verifyOTP(admin.id, done, admin);
+            return done(null, admin);
           });
         }
       );
